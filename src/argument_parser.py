@@ -9,7 +9,6 @@ def get_argument_parser():
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "-h",
         "--hide-original-camera-stream",
         dest="hide_original_camera_stream",
         help="hide the original camera stream and only show the processed stream",
