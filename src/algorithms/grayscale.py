@@ -1,13 +1,12 @@
 import cv2
 
 
-def template2(params):
+def grayscale(params):
     """
-    This is a template for creating a new algorithm that can be used in the image processor class.
-    For demonstration reasons, the input frame will be converted to a grayscale image.
+    Converts the rgb image to a grayscale image.
     """
     # Add the name of the algorithm to the parameters.
-    params["algorithm_name"] = "template2"
+    params["algorithm_name"] = "grayscale"
 
     # Check if we really want to process an image or if we just wanted to receive the algorithm name.
     if len(params) == 1:
@@ -23,9 +22,5 @@ def template2(params):
     # into the dictionary since they will only be overwritten when the algorithm changes.
 
     params["frame_result"] = cv2.cvtColor(params["frame_curr"], cv2.COLOR_RGB2GRAY)
-    (_, binary_image) = cv2.threshold(
-        params["frame_result"], 175, 255, cv2.THRESH_BINARY
-    )
-    params["frame_result"] = binary_image
 
     return params

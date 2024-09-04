@@ -9,6 +9,14 @@ def get_argument_parser():
     """
     parser = argparse.ArgumentParser()
     parser.add_argument(
+        "-i",
+        "--selected-idx",
+        dest="selected_idx",
+        help="the index of the algorithm selected when starting the program",
+        default=0,
+        type=int,
+    )
+    parser.add_argument(
         "--hide-original-camera-stream",
         dest="hide_original_camera_stream",
         help="hide the original camera stream and only show the processed stream",

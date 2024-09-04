@@ -1,5 +1,13 @@
-from algorithms.template import template
-from algorithms.template2 import template2
+from algorithms.binarization import (
+    binarize_global_threshold,
+    binarize_adaptive_mean_threshold,
+    binarize_adaptive_gauss_threshold,
+)
+from algorithms.edge_detection import sobel_x, sobel_y, sobel_xy, canny
+from algorithms.grayscale import grayscale
+from algorithms.optical_flow import optical_flow
+from algorithms.original import original
+
 from argument_parser import get_args
 from image_processor import ImageProcessor
 import curses
@@ -30,7 +38,21 @@ def main(stdscr):
     args = get_args()
 
     # Create the image processor and the parameter dictionary.
-    image_processor = ImageProcessor([template, template2])
+    image_processor = ImageProcessor(
+        [
+            original,
+            grayscale,
+            binarize_global_threshold,
+            binarize_adaptive_mean_threshold,
+            binarize_adaptive_gauss_threshold,
+            sobel_x,
+            sobel_y,
+            sobel_xy,
+            canny,
+            optical_flow,
+        ],
+        args.selected_idx,
+    )
 
     # We will pass the parameters to the image processor. These will contain the current and
     # previous image as well as some other parameters, that may be needed by some functions.
@@ -61,6 +83,7 @@ def main(stdscr):
         stdscr.clear()
         # Turn off cursor blinking
         curses.curs_set(0)
+        # Otherwise, opencvs window will not open:
         stdscr.nodelay(1)
 
         # Capture the first image.
@@ -97,22 +120,26 @@ def main(stdscr):
             cv2.imshow(CV2_WINDOW_NAME_PROCESSED, params["frame_result"])
 
             # Update the previous frame.
-            frame_prev = params["frame_curr"]
+            frame_prev = frame_curr
 
             # Wait for user input
             key = stdscr.getch()
 
-            # Handle the arrow keys
-            if key == curses.KEY_UP or key == ord("k"):
+            # Handle the arrow keys.
+            if key == curses.KEY_UP or key == ord("j"):
                 # Drop the params, since they may contain further informations from the previous algorithm.
                 params = dict()
                 image_processor.next_algorithm()
-            elif key == curses.KEY_DOWN or key == ord("j"):
+            elif key == curses.KEY_DOWN or key == ord("k"):
                 # Drop the params, since they may contain further informations from the previous algorithm.
                 params = dict()
                 image_processor.prev_algorithm()
-            elif key == ord("q"):
-                break  # Exit the loop if 'q' is pressed
+            elif key == ord("r"):
+                # Refresh the algorithm. This means, we simply delete all the parameters since they store settings
+                # some algorithm may use. We force these algorithms to restart.
+                params = dict()
+            elif key == ord("q") or key == 27:
+                break  # Exit the loop if 'q' or 'ESC' is pressed
 
             # Use OpenCV's waitKey for timing but not for input.
             cv2.waitKey(10)

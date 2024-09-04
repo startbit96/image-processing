@@ -1,7 +1,9 @@
 class ImageProcessor:
-    def __init__(self, functions):
+    def __init__(self, functions, selected_idx=0):
         self.functions = functions
-        self.selected_idx = 0
+        self.selected_idx = (
+            selected_idx if selected_idx >= 0 and selected_idx < len(functions) else 0
+        )
         self.algorithm_names = self.__get_algorithm_names()
 
     def __get_algorithm_names(self):
