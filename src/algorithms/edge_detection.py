@@ -52,7 +52,7 @@ def sobel(params, direction):
     img_blurred = cv2.GaussianBlur(img_grayscale, (3, 3), 0)
     params["frame_result"] = cv2.Sobel(
         img_blurred,
-        ddepth=cv2.CV_64F,
+        ddepth=cv2.CV_8U,
         dx=1 if direction == SobelDirection.X or direction == SobelDirection.XY else 0,
         dy=1 if direction == SobelDirection.Y or direction == SobelDirection.XY else 0,
         ksize=5,
