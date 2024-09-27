@@ -53,12 +53,6 @@ def main(stdscr):
     This function creates the needed OpenCV video stream and handles the input and UI
     using curses.
     """
-    # To be able to print into the normal console, we need a workaround because otherwise
-    # we will see nothing, when curses ends.
-    mystdout = StdOutWrapper()
-    sys.stdout = mystdout
-    sys.stderr = mystdout
-
     # Parse the arguments / get the settings.
     args = get_args()
 
@@ -192,6 +186,25 @@ def main(stdscr):
     cv2.destroyWindow(CV2_WINDOW_NAME_PROCESSED)
     video_capture.release()
 
+
+# =========================================================================================
+#       MAIN
+# =========================================================================================
+
+if __name__ == "__main__":
+    # To be able to print into the normal console, we need a workaround because otherwise
+    # we will see nothing, when curses ends.
+    mystdout = StdOutWrapper()
+    sys.stdout = mystdout
+    sys.stderr = mystdout
+
+    # To still be able to see all the error messages, we need to put the main function
+    # into a try statement, so we will reach the mystdout print at the end of this section.
+    try:
+        curses.wrapper(main)
+    except:
+        pass
+
     # Now print everything we captured in mystdout to the console.
     curses.nocbreak()
     curses.echo()
@@ -199,11 +212,3 @@ def main(stdscr):
     sys.stdout = sys.__stdout__
     sys.stderr = sys.__stderr__
     sys.stdout.write(mystdout.get_text())
-
-
-# =========================================================================================
-#       MAIN
-# =========================================================================================
-
-if __name__ == "__main__":
-    curses.wrapper(main)
