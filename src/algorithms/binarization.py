@@ -22,7 +22,7 @@ def binarize_global_threshold(params):
     # If some more informations need to be passed to the next call of the same function, they can also be written
     # into the dictionary since they will only be overwritten when the algorithm changes.
 
-    img_grayscale = cv2.cvtColor(params["frame_curr"], cv2.COLOR_RGB2GRAY)
+    img_grayscale = cv2.cvtColor(params["frame_curr"], cv2.COLOR_BGR2GRAY)
     img_blurred = cv2.GaussianBlur(img_grayscale, (5, 5), 0)
     (_, img_binary) = cv2.threshold(img_blurred, 127, 255, cv2.THRESH_BINARY)
     params["frame_result"] = img_binary
@@ -51,7 +51,7 @@ def binarize_adaptive_mean_threshold(params):
     # If some more informations need to be passed to the next call of the same function, they can also be written
     # into the dictionary since they will only be overwritten when the algorithm changes.
 
-    img_grayscale = cv2.cvtColor(params["frame_curr"], cv2.COLOR_RGB2GRAY)
+    img_grayscale = cv2.cvtColor(params["frame_curr"], cv2.COLOR_BGR2GRAY)
     img_blurred = cv2.GaussianBlur(img_grayscale, (5, 5), 0)
     img_binary = cv2.adaptiveThreshold(
         img_blurred,
@@ -87,7 +87,7 @@ def binarize_adaptive_gauss_threshold(params):
     # If some more informations need to be passed to the next call of the same function, they can also be written
     # into the dictionary since they will only be overwritten when the algorithm changes.
 
-    img_grayscale = cv2.cvtColor(params["frame_curr"], cv2.COLOR_RGB2GRAY)
+    img_grayscale = cv2.cvtColor(params["frame_curr"], cv2.COLOR_BGR2GRAY)
     img_blurred = cv2.GaussianBlur(img_grayscale, (5, 5), 0)
     img_binary = cv2.adaptiveThreshold(
         img_blurred,

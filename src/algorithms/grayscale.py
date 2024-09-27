@@ -21,6 +21,6 @@ def grayscale(params):
     # If some more informations need to be passed to the next call of the same function, they can also be written
     # into the dictionary since they will only be overwritten when the algorithm changes.
 
-    params["frame_result"] = cv2.cvtColor(params["frame_curr"], cv2.COLOR_RGB2GRAY)
+    params["frame_result"] = cv2.cvtColor(params["frame_curr"], cv2.COLOR_BGR2GRAY)
 
     return params

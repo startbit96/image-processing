@@ -12,6 +12,7 @@ from argument_parser import get_args
 from image_processor import ImageProcessor
 import curses
 import cv2
+import sys
 
 
 # =========================================================================================
@@ -20,8 +21,26 @@ import cv2
 
 CV2_WINDOW_NAME_ORIGINAL = "original camera stream"
 CV2_WINDOW_NAME_PROCESSED = "processed camera stream"
-# 0 does not work on MacOS (https://github.com/opencv/opencv-python/issues/916)
-CV2_VIDEO_CAPTURE_DEVICE_ID = 1
+
+
+# =========================================================================================
+#       WORKAROUND FOR PRINTING INTO THE CONSOLE WHILE CURSES IS ACTIVE
+# =========================================================================================
+
+
+class StdOutWrapper:
+    """
+    This code was taken from: https://stackoverflow.com/a/14010948
+    """
+
+    text = ""
+
+    def write(self, txt):
+        self.text += txt
+        self.text = "\n".join(self.text.split("\n")[-30:])
+
+    def get_text(self):
+        return "\n".join(self.text.split("\n"))
 
 
 # =========================================================================================
@@ -34,6 +53,12 @@ def main(stdscr):
     This function creates the needed OpenCV video stream and handles the input and UI
     using curses.
     """
+    # To be able to print into the normal console, we need a workaround because otherwise
+    # we will see nothing, when curses ends.
+    mystdout = StdOutWrapper()
+    sys.stdout = mystdout
+    sys.stderr = mystdout
+
     # Parse the arguments / get the settings.
     args = get_args()
 
@@ -52,6 +77,7 @@ def main(stdscr):
             optical_flow,
         ],
         args.selected_idx,
+        args.print_markdown_table,
     )
 
     # We will pass the parameters to the image processor. These will contain the current and
@@ -64,10 +90,14 @@ def main(stdscr):
     params = dict()
 
     # Initialize the windows and the camera stream.
-    if not args.hide_original_camera_stream:
+    if not args.hide_original_stream:
         cv2.namedWindow(CV2_WINDOW_NAME_ORIGINAL)
     cv2.namedWindow(CV2_WINDOW_NAME_PROCESSED)
-    video_capture = cv2.VideoCapture(CV2_VIDEO_CAPTURE_DEVICE_ID)
+
+    # If a path to a video file is given, use this, otherwise, use the camera.
+    video_capture = cv2.VideoCapture(
+        args.filename_video if args.filename_video is not None else args.device_id
+    )
 
     if video_capture.isOpened():
         # Create the terminal UI using curses.
@@ -88,12 +118,15 @@ def main(stdscr):
 
         # Capture the first image.
         ret, frame_prev = video_capture.read()
-        while ret:
+        if not ret:
+            print("There was an error capturing the first image.")
+        while True:
             # Handle the terminal UI.
             stdscr.clear()
 
             # Display the list of items
-            for idx, item in enumerate(image_processor.algorithm_names):
+            for idx, algorithm_name in enumerate(image_processor.algorithm_names):
+                item = f"{idx:03d}\t{algorithm_name}"
                 if idx == image_processor.selected_idx:
                     stdscr.addstr(idx, 0, item, curses.color_pair(2))
                 else:
@@ -104,6 +137,13 @@ def main(stdscr):
 
             # Capture the image.
             ret, frame_curr = video_capture.read()
+            if not ret and args.filename_video is not None:
+                # The video ended. Reload the video.
+                video_capture.release()
+                video_capture = cv2.VideoCapture(args.filename_video)
+                continue
+            elif not ret:
+                break
 
             # Update the parameters for the image processor.
             params["frame_prev"] = frame_prev
@@ -113,7 +153,7 @@ def main(stdscr):
             params = image_processor.process(params)
 
             # Display the original image.
-            if not args.hide_original_camera_stream:
+            if not args.hide_original_stream:
                 cv2.imshow(CV2_WINDOW_NAME_ORIGINAL, params["frame_curr"])
 
             # Display the processed image.
@@ -142,15 +182,23 @@ def main(stdscr):
                 break  # Exit the loop if 'q' or 'ESC' is pressed
 
             # Use OpenCV's waitKey for timing but not for input.
-            cv2.waitKey(10)
+            cv2.waitKey(50)
     else:
         print("Cannot open video stream.")
 
     # Terminate the windows and the camera stream.
-    if not args.hide_original_camera_stream:
+    if not args.hide_original_stream:
         cv2.destroyWindow(CV2_WINDOW_NAME_ORIGINAL)
     cv2.destroyWindow(CV2_WINDOW_NAME_PROCESSED)
     video_capture.release()
+
+    # Now print everything we captured in mystdout to the console.
+    curses.nocbreak()
+    curses.echo()
+    curses.endwin()
+    sys.stdout = sys.__stdout__
+    sys.stderr = sys.__stderr__
+    sys.stdout.write(mystdout.get_text())
 
 
 # =========================================================================================

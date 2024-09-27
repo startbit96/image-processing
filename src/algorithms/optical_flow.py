@@ -40,7 +40,7 @@ def optical_flow(params):
         params["colors"] = np.random.randint(0, 255, (100, 3))
         # Find corners in the current frame.
         params["p0"] = cv2.goodFeaturesToTrack(
-            cv2.cvtColor(params["frame_prev"], cv2.COLOR_RGB2GRAY),
+            cv2.cvtColor(params["frame_prev"], cv2.COLOR_BGR2GRAY),
             mask=None,
             maxCorners=100,
             qualityLevel=0.3,
@@ -51,8 +51,8 @@ def optical_flow(params):
     else:
         # This is not the first run, we can run optical flow on it.
         p1, st, err = cv2.calcOpticalFlowPyrLK(
-            cv2.cvtColor(params["frame_prev"], cv2.COLOR_RGB2GRAY),
-            cv2.cvtColor(params["frame_curr"], cv2.COLOR_RGB2GRAY),
+            cv2.cvtColor(params["frame_prev"], cv2.COLOR_BGR2GRAY),
+            cv2.cvtColor(params["frame_curr"], cv2.COLOR_BGR2GRAY),
             params["p0"],
             None,
             **lk_params,

@@ -17,12 +17,35 @@ def get_argument_parser():
         type=int,
     )
     parser.add_argument(
-        "--hide-original-camera-stream",
-        dest="hide_original_camera_stream",
-        help="hide the original camera stream and only show the processed stream",
+        "-d",
+        "--device-id",
+        dest="device_id",
+        help="the id of the camera that shall be used (if you want to use a video, see the '-f' argument)",
+        default=1,
+        type=int,
+    )
+    parser.add_argument(
+        "-f",
+        "--filename-video",
+        dest="filename_video",
+        help="path to the video that shall be processed (if not set, the camera stream will be used)",
+        default=None,
+    )
+    parser.add_argument(
+        "--hide-original-stream",
+        dest="hide_original_stream",
+        help="hide the original camera / video stream and only show the processed stream",
         action="store_true",
         default=False,
     )
+    parser.add_argument(
+        "--print-markdown-table",
+        dest="print_markdown_table",
+        help="if set, a markdown table with the available algorithms is printed for easy copy paste into the README, afterwards the program will be aborted",
+        action="store_true",
+        default=False,
+    )
+
     return parser
 
 

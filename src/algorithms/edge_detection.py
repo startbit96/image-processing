@@ -48,7 +48,7 @@ def sobel(params, direction):
     # If some more informations need to be passed to the next call of the same function, they can also be written
     # into the dictionary since they will only be overwritten when the algorithm changes.
 
-    img_grayscale = cv2.cvtColor(params["frame_curr"], cv2.COLOR_RGB2GRAY)
+    img_grayscale = cv2.cvtColor(params["frame_curr"], cv2.COLOR_BGR2GRAY)
     img_blurred = cv2.GaussianBlur(img_grayscale, (3, 3), 0)
     params["frame_result"] = cv2.Sobel(
         img_blurred,
@@ -81,7 +81,7 @@ def canny(params):
     # If some more informations need to be passed to the next call of the same function, they can also be written
     # into the dictionary since they will only be overwritten when the algorithm changes.
 
-    img_grayscale = cv2.cvtColor(params["frame_curr"], cv2.COLOR_RGB2GRAY)
+    img_grayscale = cv2.cvtColor(params["frame_curr"], cv2.COLOR_BGR2GRAY)
     img_blurred = cv2.GaussianBlur(img_grayscale, (3, 3), 0)
     params["frame_result"] = cv2.Canny(img_blurred, threshold1=100, threshold2=200)
 
